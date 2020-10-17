@@ -47,13 +47,49 @@ namespace Lab01
             string[,] table = new string[quantityOfCities,quantityOfCities];
             table = program.WriteTable(quantityOfCities, reader);
             program.DisplayTable( table, quantityOfCities);
-            
+            List<string> zipCode = new List<string>();
+            List<string> cityName = new List<string>();
+            List<double> latitude = new List<double>();
+            List<double> longitude = new List<double>();
+            List<double> distances = new List<double>();
 
-            List <string> permutation = program.ReadPermutation();
-            program.DisplayPermutation(permutation);
-            program.CountDistance(permutation, table);
-            
-            
+            for (int i = 0; i<quantityOfCities; i++)
+            {
+                var line = reader.ReadLine().Split(";");
+                zipCode.Add(line[0]);
+                cityName.Add(line[1]);
+                latitude.Add(Convert.ToDouble( line[2]));
+                longitude.Add(Convert.ToDouble(line[3]));
+            }
+
+            /*
+            for (int i = 0; i < quantityOfCities; i++)
+            {
+                Console.WriteLine(cityName[i]);
+
+            }
+            */
+
+              //  while (true)
+            //{
+                List<string> permutation = program.ReadPermutation();
+                //program.DisplayPermutation(permutation);
+                distances  = program.CountTotalDistance(permutation, table);
+            //}
+
+            for (int i = 0; i< distances.Count; i++)
+            {
+                if (i != distances.Count - 1)
+                {
+                    Console.WriteLine("Dlugość trasy nr. " + (i + 1) + " to: " + distances[i]);
+                }
+                else
+                {
+                    Console.WriteLine("Dlugość trasy całkowita to: " + distances[i]);
+                }
+                
+
+            }
 
 
 
@@ -150,35 +186,48 @@ namespace Lab01
             }
         }
 
-        public void CountDistance (List< string> permutation, string[,] table)
+        private List<double> CountTotalDistance (List< string> permutation, string[,] table)
         {
-            int ComeBack = 0;
-            int MainCity = int.Parse(permutation[0]);
-            Console.Write(MainCity);
-            for( int i=1; i< permutation.Count; i++)
-            {
-                if (int.Parse(permutation[i]) == MainCity)
-                {
-                    ComeBack = i;
-                }
-            }
-            Console.WriteLine("\n"+ComeBack);
-
-            string Distance = null;
-            string jakas;
-            for (int i =0; i < ComeBack; i++)
-            {
-                //Distance += double.Parse(table[MainCity - 1, int.Parse(permutation[i])]);
-                jakas = table[(MainCity - 1), int.Parse(permutation[i])];
-                Distance += jakas;
-               // double wartosc = Convert.ToDouble(jakas);
-                //Distance += Convert.ToDouble(jakas);
-                Console.WriteLine("x: "+ (MainCity - 1) +"y: "+ int.Parse(permutation[i])+"  " + jakas);
-                // Distance += double.Parse(table[MainCity - 1,1]);
-                Console.WriteLine(Distance);
-            }
+        
+            int MainCity = int.Parse(permutation[0]);      
+            double partDistance = 0.0;
+            double totalDistance = 0.0;
+            List<double> listOfDistances = new List<double>();
             
+            for (int i =0; i < permutation.Count; i++)
+            {
+                if (i > 0)
+                {
+                    int indexX = int.Parse(permutation[i - 1]) - 1;
+                    int indexY = int.Parse(permutation[i]) - 1;
+                    partDistance += double.Parse(table[indexX, indexY]);
+                    totalDistance += double.Parse(table[indexX, indexY]);
+                   // Console.WriteLine("X: " + indexX.ToString() + " Y: " + indexY.ToString());
+
+                    if (int.Parse(permutation[i]) == MainCity && int.Parse(permutation[i]) == MainCity)
+                    {
+                        listOfDistances.Add(partDistance);
+                        partDistance = 0.0;
+                      //  Console.WriteLine("JESTEM W DOMU");
+                    }
+                }
+                else
+                {
+                    partDistance = 0;
+                }
+                
+                
+                
+            }
+           // Console.WriteLine(totalDistance + "\n\n\n\n\n");
+            listOfDistances.Add(totalDistance);
+
+
+            return listOfDistances;
         }
+
+        
+
 
 
     }
