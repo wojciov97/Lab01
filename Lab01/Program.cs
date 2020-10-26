@@ -75,6 +75,7 @@ namespace Lab01
                 List<string> permutation = program.ReadPermutation();
                 //program.DisplayPermutation(permutation);
                 distances  = program.CountTotalDistance(permutation, table);
+            program.VRP(table, permutation);
             //}
 
             for (int i = 0; i< distances.Count; i++)
@@ -185,6 +186,50 @@ namespace Lab01
 
             }
         }
+
+        private int FindMaxDistance (string[,] table, List<string> permutation)
+        {
+            int indexToReturn=0;
+            double maxDistance = 0;
+            for (int i=1; i<permutation.Count; i++)
+            {
+                int indexY = int.Parse(permutation[i])-1;
+                int indexX = int.Parse(permutation[0])-1;
+                double tempDistance = double.Parse(table[indexX, indexY]);
+              
+               
+                if (maxDistance < tempDistance)
+                {
+                    maxDistance = tempDistance;
+                    indexToReturn = indexY;
+                }
+                
+            }
+
+            return indexToReturn;
+        }
+
+        private void VRP (string[,] table, List<string> permutation)
+        {
+            List<string> tempPermutation = new List<string>();
+            tempPermutation = permutation;
+            List<string> Pi = new List<string>();
+           // Console.WriteLine(FindMaxDistance(table, permutation));
+
+
+            Pi.Clear();
+
+            for (int i=0; i<permutation.Count; i++)
+            { int whatToRemove = FindMaxDistance(table, tempPermutation);
+                Pi.Add(whatToRemove.ToString());
+                tempPermutation.RemoveAt(whatToRemove);
+
+                Console.WriteLine("USUWAM: " + whatToRemove);
+                DisplayPermutation(tempPermutation);
+                Console.WriteLine("\n");
+            }
+            
+         }
 
         private List<double> CountTotalDistance (List< string> permutation, string[,] table)
         {
