@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Lab01
 {
@@ -39,14 +40,14 @@ namespace Lab01
             int quantityOfCities = int.Parse(reader.ReadLine().Split(";")[0]);
 
             // Displaying quantity of cities
-            Console.WriteLine("Ilość miast: " + quantityOfCities);
+            //Console.WriteLine("Ilość miast: " + quantityOfCities);
             //Variable to read unit (km or miles)
             var unit = reader.ReadLine().Split(";")[0];
-            Console.WriteLine("Jednostka odległości: " + unit);
+            //Console.WriteLine("Jednostka odległości: " + unit);
 
             string[,] table = new string[quantityOfCities,quantityOfCities];
             table = program.WriteTable(quantityOfCities, reader);
-            program.DisplayTable( table, quantityOfCities);
+            //program.DisplayTable( table, quantityOfCities);
             List<string> zipCode = new List<string>();
             List<string> cityName = new List<string>();
             List<double> latitude = new List<double>();
@@ -62,22 +63,17 @@ namespace Lab01
                 longitude.Add(Convert.ToDouble(line[3]));
             }
 
-            /*
-            for (int i = 0; i < quantityOfCities; i++)
-            {
-                Console.WriteLine(cityName[i]);
-
-            }
-            */
-
-              //  while (true)
-            //{
                 List<string> permutation = program.ReadPermutation();
-                //program.DisplayPermutation(permutation);
-                distances  = program.CountTotalDistance(permutation, table);
-            program.VRP(table, permutation);
-            //}
+            List<int> finalPermutation = new List<int>();
+               // distances  = program.CountTotalDistance(program.VRP(table, permutation,1), table);
 
+            finalPermutation = program.VRP(table, permutation, 1);
+            Console.Write("Kolejność przejazdu: ");
+            program.DisplayPermutationint(finalPermutation);
+            distances = program.CountTotalDistance(finalPermutation, table);
+
+
+            Console.WriteLine("");
             for (int i = 0; i< distances.Count; i++)
             {
                 if (i != distances.Count - 1)
@@ -149,6 +145,7 @@ namespace Lab01
         }
         private List <string> ReadPermutation()
         {
+          //  Console.WriteLine("Wpisz numer huba");
 
             // Reading permutation
             Console.WriteLine("Wpisz permutację: ");
@@ -160,22 +157,35 @@ namespace Lab01
             {
 
                 city = Console.ReadLine();
-
-
-                // Console.WriteLine(city);
-                if (city.Length != 0)
+                if (city.Equals("ALL"))
                 {
-                    int value = int.Parse(city);
-                    if (value <= 25)
-                        permutation.Add(city);
-                    else
+                    for (int i =1; i<25; i++)
                     {
-                        Console.WriteLine("Podałeś miasto nieprawidłowy numer miasta");
+                        permutation.Add(i.ToString());
+                       // DisplayPermutation(permutation);
+                    }
+                    DisplayPermutation(permutation);
+                    return permutation;
+                }
+                else
+                {
+                    // Console.WriteLine(city);
+                    if (city.Length != 0)
+                    {
+                        int value = int.Parse(city);
+                        if (value <= 25)
+                            permutation.Add(city);
+                        else
+                        {
+                            Console.WriteLine("Podałeś miasto nieprawidłowy numer miasta");
+                        }
                     }
                 }
+
+               
             } while (city.Length != 0);
 
-
+            DisplayPermutation(permutation);
             return permutation;
         }
         private void DisplayPermutation (List <string> permutation)
@@ -187,54 +197,174 @@ namespace Lab01
             }
         }
 
-        private int FindMaxDistance (string[,] table, List<string> permutation)
+
+        private void DisplayPermutationint(List<int> permutation)
+        {
+            for (int i = 0; i < permutation.Count; i++)
+            {
+                Console.Write(permutation[i] + " ");
+
+            }
+        }
+        private double FindMaxDistance (string[,] table, List<string> permutation, int startArg)
         {
             int indexToReturn=0;
             double maxDistance = 0;
-            for (int i=1; i<permutation.Count; i++)
+            double tempDistance = 0;
+            //DisplayPermutation(permutation);
+            //Console.WriteLine("\n");
+            for (int i=0; i<permutation.Count; i++)
             {
-                int indexY = int.Parse(permutation[i])-1;
-                int indexX = int.Parse(permutation[0])-1;
-                double tempDistance = double.Parse(table[indexX, indexY]);
+                
+                int indexY = int.Parse(permutation[i]);
+                int indexX = startArg;
+                if (indexY >=0)
+                    tempDistance = double.Parse(table[indexX, indexY]);
               
-               
-                if (maxDistance < tempDistance)
+               if(tempDistance > 0)
                 {
-                    maxDistance = tempDistance;
-                    indexToReturn = indexY;
+                    if (maxDistance < tempDistance)
+                    {
+                        maxDistance = tempDistance;
+                        indexToReturn = i;
+                    }
                 }
+                
                 
             }
 
+            return maxDistance;
+        }
+
+        private int FindMaxIndex(string[,] table, List<string> permutation, int argStart)
+        {
+            int indexToReturn = 0;
+            double maxDistance = 0;
+            double tempDistance = 0;
+            //DisplayPermutation(permutation);
+            //Console.WriteLine("\n");
+            for (int i = 0; i < permutation.Count; i++)
+            {
+
+                int indexY = int.Parse(permutation[i])-1 ;
+                int indexX = argStart;
+                if (indexY >= 0)
+                    tempDistance = double.Parse(table[indexX, indexY]);
+
+                if (tempDistance > 0)
+                {
+                    if (maxDistance < tempDistance)
+                    {
+                        maxDistance = tempDistance;
+                        
+                        indexToReturn = i;
+                    }
+                }
+
+
+            }
+           // Console.WriteLine(maxDistance);
             return indexToReturn;
         }
 
-        private void VRP (string[,] table, List<string> permutation)
+
+        private int FindMinIndex (string[,] table, List<string> permutation, int argStart)
         {
+            int indexToReturn = 0;
+            double maxDistance = 999999;
+            double tempDistance = 0;
+            //DisplayPermutation(permutation);
+            //Console.WriteLine("\n");
+            for (int i = 0; i < permutation.Count; i++)
+            {
+
+                int indexY = int.Parse(permutation[i])-1;
+                int indexX = int.Parse(permutation[i]);
+                if (indexY >= 0)
+                    tempDistance = double.Parse(table[indexX, indexY]);
+
+                if (tempDistance > 0)
+               {
+                    if (maxDistance > tempDistance)
+                    {
+                        maxDistance = tempDistance;
+                        indexToReturn = i;
+                    }
+                }
+
+
+            }
+            //Console.WriteLine(maxDistance);
+            return indexToReturn;
+
+
+
+           // return 0;
+        }
+
+        private List<int> VRP (string[,] table, List<string> permutation, int truckCount)
+        {
+
+           
+            int Hub = int.Parse( permutation[0]);
+            double OrderCount =
+                (permutation.Count+1) / truckCount;
+            //Console.WriteLine("ORDER COUNT:" + OrderCount);
+         
+
             List<string> tempPermutation = new List<string>();
             tempPermutation = permutation;
-            List<string> Pi = new List<string>();
-           // Console.WriteLine(FindMaxDistance(table, permutation));
+            List<int> Pi = new List<int>();
 
-
+         
+            Console.WriteLine("\n");
             Pi.Clear();
+           
+            int k = 1;
+            tempPermutation.RemoveAt(0);
 
-            for (int i=0; i<permutation.Count; i++)
-            { int whatToRemove = FindMaxDistance(table, tempPermutation);
-                Pi.Add(whatToRemove.ToString());
-                tempPermutation.RemoveAt(whatToRemove);
+            while (tempPermutation.Count != 0) 
+            {
+                Pi.Add(Hub);
+               
+                int j = FindMinIndex(table, tempPermutation, Hub - 1);
+                Pi.Add(int.Parse(tempPermutation[j]));
+                tempPermutation.RemoveAt(FindMinIndex(table, tempPermutation, Hub - 1));
+                int x_k = 1;
+                int l = j;
 
-                Console.WriteLine("USUWAM: " + whatToRemove);
-                DisplayPermutation(tempPermutation);
-                Console.WriteLine("\n");
+                while (x_k < OrderCount && tempPermutation.Count != 0)
+                {
+                    //Console.WriteLine("Jestem tu");
+                    // Console.WriteLine("Jestem w:" + l);
+                    l = FindMinIndex(table, tempPermutation, l);
+                   // Console.WriteLine("Jade do:" + int.Parse(tempPermutation[l]));
+
+                    if (x_k + 1 < OrderCount)
+                    {
+                        Pi.Add(int.Parse(permutation[l]));
+                        tempPermutation.RemoveAt(l);
+                        
+                    }
+                    x_k++;
+
+
+
+                }
+                // k++; 
+
             }
-            
-         }
 
-        private List<double> CountTotalDistance (List< string> permutation, string[,] table)
+
+            Pi.Add(Hub);
+
+                return Pi;
+        }
+
+        private List<double> CountTotalDistance (List< int> permutation, string[,] table)
         {
         
-            int MainCity = int.Parse(permutation[0]);      
+            int MainCity = permutation[0];      
             double partDistance = 0.0;
             double totalDistance = 0.0;
             List<double> listOfDistances = new List<double>();
@@ -243,13 +373,13 @@ namespace Lab01
             {
                 if (i > 0)
                 {
-                    int indexX = int.Parse(permutation[i - 1]) - 1;
-                    int indexY = int.Parse(permutation[i]) - 1;
+                    int indexX = permutation[i - 1] - 1;
+                    int indexY = permutation[i] - 1;
                     partDistance += double.Parse(table[indexX, indexY]);
                     totalDistance += double.Parse(table[indexX, indexY]);
                    // Console.WriteLine("X: " + indexX.ToString() + " Y: " + indexY.ToString());
 
-                    if (int.Parse(permutation[i]) == MainCity && int.Parse(permutation[i]) == MainCity)
+                    if (permutation[i] == MainCity && permutation[i] == MainCity)
                     {
                         listOfDistances.Add(partDistance);
                         partDistance = 0.0;
