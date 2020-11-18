@@ -159,7 +159,7 @@ namespace Lab01
                 city = Console.ReadLine();
                 if (city.Equals("ALL"))
                 {
-                    for (int i =1; i<25; i++)
+                    for (int i =1; i<=25; i++)
                     {
                         permutation.Add(i.ToString());
                        // DisplayPermutation(permutation);
@@ -279,7 +279,7 @@ namespace Lab01
             {
 
                 int indexY = int.Parse(permutation[i])-1;
-                int indexX = int.Parse(permutation[i]);
+                int indexX = argStart;
                 if (indexY >= 0)
                     tempDistance = double.Parse(table[indexX, indexY]);
 
@@ -327,9 +327,9 @@ namespace Lab01
             {
                 Pi.Add(Hub);
                
-                int j = FindMinIndex(table, tempPermutation, Hub - 1);
+                int j = FindMaxIndex(table, tempPermutation, Hub - 1);
                 Pi.Add(int.Parse(tempPermutation[j]));
-                tempPermutation.RemoveAt(FindMinIndex(table, tempPermutation, Hub - 1));
+                tempPermutation.RemoveAt(FindMaxIndex(table, tempPermutation, Hub - 1));
                 int x_k = 1;
                 int l = j;
 
