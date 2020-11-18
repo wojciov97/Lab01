@@ -65,28 +65,31 @@ namespace Lab01
 
                 List<string> permutation = program.ReadPermutation();
             List<int> finalPermutation = new List<int>();
-               // distances  = program.CountTotalDistance(program.VRP(table, permutation,1), table);
+            // distances  = program.CountTotalDistance(program.VRP(table, permutation,1), table);
+            //  program.DisplayPermutation(permutation);
+           
 
-            finalPermutation = program.VRP(table, permutation, 1);
-            Console.Write("Kolejność przejazdu: ");
-            program.DisplayPermutationint(finalPermutation);
-            distances = program.CountTotalDistance(finalPermutation, table);
+                finalPermutation = program.VRP(table, permutation, 2);
+                Console.Write("Kolejność przejazdu: ");
+                program.DisplayPermutationint(finalPermutation);
+                distances = program.CountTotalDistance(finalPermutation, table);
 
 
-            Console.WriteLine("");
-            for (int i = 0; i< distances.Count; i++)
-            {
-                if (i != distances.Count - 1)
+                Console.WriteLine("");
+                for (int i = 0; i < distances.Count; i++)
                 {
-                    Console.WriteLine("Dlugość trasy nr. " + (i + 1) + " to: " + distances[i]);
-                }
-                else
-                {
-                    Console.WriteLine("Dlugość trasy całkowita to: " + distances[i]);
-                }
-                
+                    if (i != distances.Count - 1)
+                    {
+                        Console.WriteLine("Dlugość trasy nr. " + (i + 1) + " to: " + distances[i]);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Dlugość trasy całkowita to: " + distances[i]);
+                    }
 
-            }
+
+                }
+       
 
 
 
@@ -145,23 +148,36 @@ namespace Lab01
         }
         private List <string> ReadPermutation()
         {
-          //  Console.WriteLine("Wpisz numer huba");
+            Console.WriteLine("Wpisz numer huba");
+            string hub = null;
+            hub = Console.ReadLine();
 
             // Reading permutation
-            Console.WriteLine("Wpisz permutację: ");
+            Console.WriteLine("Wpisz permutację: (wpisz 0 jeśli chcesz przetwarzać wszystkie miasta)");
 
             List<string> permutation = new List<string>();
 
             string city = null;
+            
             do
             {
-
+                    
                 city = Console.ReadLine();
-                if (city.Equals("ALL"))
+                if (city.Equals("0"))
                 {
-                    for (int i =1; i<25; i++)
-                    {
-                        permutation.Add(i.ToString());
+                    for (int i =1; i<=25; i++)
+                    {   if( !hub.Equals("1") && i==1)
+                        {
+                            permutation.Add(hub);
+                        }else if (!hub.Equals("1") && i.ToString().Equals(hub))
+                        {
+                            permutation.Add("1");
+                        }
+                        else
+                        {
+                            permutation.Add(i.ToString());
+                        }
+                        
                        // DisplayPermutation(permutation);
                     }
                     DisplayPermutation(permutation);
@@ -279,7 +295,7 @@ namespace Lab01
             {
 
                 int indexY = int.Parse(permutation[i])-1;
-                int indexX = int.Parse(permutation[i]);
+                int indexX = argStart;
                 if (indexY >= 0)
                     tempDistance = double.Parse(table[indexX, indexY]);
 
@@ -327,9 +343,9 @@ namespace Lab01
             {
                 Pi.Add(Hub);
                
-                int j = FindMinIndex(table, tempPermutation, Hub - 1);
+                int j = FindMaxIndex(table, tempPermutation, Hub - 1);
                 Pi.Add(int.Parse(tempPermutation[j]));
-                tempPermutation.RemoveAt(FindMinIndex(table, tempPermutation, Hub - 1));
+                tempPermutation.RemoveAt(FindMaxIndex(table, tempPermutation, Hub - 1));
                 int x_k = 1;
                 int l = j;
 
